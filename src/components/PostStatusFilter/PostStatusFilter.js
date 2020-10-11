@@ -1,33 +1,36 @@
 //Core
-import React, { Component } from 'react';
-//Styles
-import './PostStatusFilter.css';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
-export default class PostStatusFilter extends Component {
-	state = {
-		buttons: [
-			{ name: 'all', label: 'Все' },
-			{ name: 'like', label: 'Понравилось' },
-		],
-	};
+const PostStatusFilter = ({ filter, onFilterSelect }) => {
+	const initialState = [
+		{ name: 'all', label: 'Все' },
+		{ name: 'like', label: 'Понравилось' },
+	];
 
-	render() {
-		const buttons = this.state.buttons.map(({ name, label }) => {
-			const active = this.props.filter === name;
-			const clazz = active ? 'btn-info' : 'btn-outline-secondary';
+	const [buttons, setButtons] = useState(initialState);
 
-			return (
-				<button
-					key={name}
-					type="button"
-					className={`btn ${clazz}`}
-					onClick={() => this.props.onFilterSelect(name)}
-				>
-					{label}
-				</button>
-			);
-		});
+	const buttonsGroup = buttons.map(({ name, label }) => {
+		const clazz = filter === name ? 'btn-info' : 'btn-outline-secondary';
 
-		return <div className="btn-group">{buttons}</div>;
-	}
-}
+		return (
+			<button
+				key={name}
+				type="button"
+				className={`btn ${clazz}`}
+				onClick={() => onFilterSelect(name)}
+			>
+				{label}
+			</button>
+		);
+	});
+
+	return <div className="btn-group">{buttonsGroup}</div>;
+};
+
+PostStatusFilter.propTypes = {
+	filter: PropTypes.string.isRequired,
+	onFilterSelect: PropTypes.func.isRequired,
+};
+
+export default PostStatusFilter;

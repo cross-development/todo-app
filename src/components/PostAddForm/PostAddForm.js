@@ -1,38 +1,39 @@
 //Core
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 //Styles
 import './PostAddForm.css';
 
-export default class PostAddForm extends Component {
-	state = {
-		value: '',
-	};
+const PostAddForm = ({ onAddItem }) => {
+	const [value, setValue] = useState('');
 
-	onChangeValue = ({ target: { value } }) => this.setState({ value });
+	const onChangeValue = ({ target: { value } }) => setValue(value);
 
-	onSubmit = e => {
+	const onSubmit = e => {
 		e.preventDefault();
 
-		this.props.onAdd(this.state.value);
-		this.setState({ value: '' });
+		onAddItem(value);
+		setValue('');
 	};
 
-	render() {
-		const { value } = this.state;
+	return (
+		<form onSubmit={onSubmit} className="bottom-panel d-flex">
+			<input
+				type="text"
+				value={value}
+				onChange={onChangeValue}
+				placeholder="О чем вы думаете сейчас?"
+				className="form-control new-post-label"
+			/>
+			<button type="submit" className="btn btn-outline-secondary">
+				Добавить
+			</button>
+		</form>
+	);
+};
 
-		return (
-			<form onSubmit={this.onSubmit} className="bottom-panel d-flex">
-				<input
-					type="text"
-					value={value}
-					onChange={this.onChangeValue}
-					placeholder="О чем вы думаете сейчас?"
-					className="form-control new-post-label"
-				/>
-				<button type="submit" className="btn btn-outline-secondary">
-					Добавить
-				</button>
-			</form>
-		);
-	}
-}
+PostAddForm.propTypes = {
+	onAddItem: PropTypes.func.isRequired,
+};
+
+export default PostAddForm;

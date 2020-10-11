@@ -1,5 +1,5 @@
 //Core
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 //Components
 import PostList from '../PostList';
@@ -9,15 +9,12 @@ import PostAddForm from '../PostAddForm';
 import PostStatusFilter from '../PostStatusFilter';
 //Styles
 import './App.css';
+const App = () => {
+	const [data, setData] = useState([]);
+	const [term, setTerm] = useState('');
+	const [filter, setFilter] = useState('all');
 
-export default class App extends Component {
-	state = {
-		data: [],
-		term: '',
-		filter: 'all',
-	};
-
-	addItem = body => {
+	const addItem = body => {
 		const newItem = {
 			id: uuidv4(),
 			label: body,
@@ -25,30 +22,24 @@ export default class App extends Component {
 			important: false,
 		};
 
-		this.setState(({ data }) => ({ data: [...data, newItem] }));
+		setData([...data, newItem]);
 	};
 
-	deleteItem = itemId => {
-		this.setState(({ data }) => ({ data: data.filter(({ id }) => id !== itemId) }));
-	};
+	const deleteItem = itemId => setData(data.filter(({ id }) => id !== itemId));
 
-	onToggleLiked = itemId => {
-		this.setState(({ data }) => ({
-			data: data.map(item => (item.id === itemId ? { ...item, like: !item.like } : item)),
-		}));
-	};
+	const onToggleLiked = itemId =>
+		setData(data.map(item => (item.id === itemId ? { ...item, like: !item.like } : item)));
 
-	onToggleImportant = itemId => {
-		this.setState(({ data }) => ({
-			data: data.map(item => (item.id === itemId ? { ...item, important: !item.important } : item)),
-		}));
-	};
+	const onToggleImportant = itemId =>
+		setData(
+			data.map(item => (item.id === itemId ? { ...item, important: !item.important } : item)),
+		);
 
-	onSearchPost = term => this.setState({ term });
+	const onSearchPost = term => setTerm(term);
 
-	onFilterSelect = filter => this.setState({ filter });
+	const onFilterSelect = filter => setFilter(filter);
 
-	onFilterPost = (items, filter) => {
+	const onFilterPost = (items, filter) => {
 		if (filter === 'like') {
 			return items.filter(item => item.like);
 		} else {
@@ -56,39 +47,33 @@ export default class App extends Component {
 		}
 	};
 
-	getVisiblePosts = () => {
-		const { data, filter } = this.state;
+	const getVisiblePosts = () =>
+		data.filter(({ label }) => label.toLowerCase().includes(term.toLowerCase()));
 
-		return data.filter(({ label }) => label.toLowerCase().includes(filter.toLowerCase()));
-	};
+	const allPosts = data.length;
+	const liked = data.filter(item => item.like).length;
+	const visiblePosts = onFilterPost(getVisiblePosts(), filter);
 
-	render() {
-		const { data, term, filter } = this.state;
+	return (
+		<div className="app">
+			<AppHeader liked={liked} allPosts={allPosts} />
 
-		const allPosts = data.length;
-		const liked = data.filter(item => item.like).length;
+			<div className="search-panel d-flex">
+				<SearchPanel value={term} onChangeFilter={onSearchPost} />
 
-		const visiblePosts = this.getVisiblePosts();
-
-		return (
-			<div className="app">
-				<AppHeader liked={liked} allPosts={allPosts} />
-
-				<div className="search-panel d-flex">
-					<SearchPanel value={term} onChangeFilter={this.onSearchPost} />
-
-					<PostStatusFilter filter={filter} onFilterSelect={this.onFilterSelect} />
-				</div>
-
-				<PostList
-					posts={visiblePosts}
-					onDelete={this.deleteItem}
-					onToggleLiked={this.onToggleLiked}
-					onToggleImportant={this.onToggleImportant}
-				/>
-
-				<PostAddForm onAdd={this.addItem} />
+				<PostStatusFilter filter={filter} onFilterSelect={onFilterSelect} />
 			</div>
-		);
-	}
-}
+
+			<PostList
+				posts={visiblePosts}
+				onDelete={deleteItem}
+				onToggleLiked={onToggleLiked}
+				onToggleImportant={onToggleImportant}
+			/>
+
+			<PostAddForm onAddItem={addItem} />
+		</div>
+	);
+};
+
+export default App;

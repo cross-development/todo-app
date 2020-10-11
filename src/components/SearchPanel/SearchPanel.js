@@ -1,5 +1,6 @@
 //Core
 import React from 'react';
+import PropTypes from 'prop-types';
 //Styles
 import './SearchPanel.css';
 
@@ -13,5 +14,10 @@ const SearchPanel = ({ value, onChangeFilter }) => (
 		onChange={e => onChangeFilter(e.target.value)}
 	/>
 );
+
+SearchPanel.propTypes = {
+	value: PropTypes.string.isRequired,
+	onChangeFilter: PropTypes.func.isRequired,
+};
 
 export default SearchPanel;
